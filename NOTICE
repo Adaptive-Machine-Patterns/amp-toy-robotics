@@ -1,0 +1,16 @@
+AMP Toy Robotics Benchmark
+Copyright 2026 Adaptive Machine Patterns Ltd
+(registered in England & Wales, no. 15618869)
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes color specifications and designs developed by
+Cynthia Brewer (http://colorbrewer.org/): the "Set2" palette used for the
+object colours (src/amp_toy_robotics/geometry.py). ColorBrewer is licensed
+under the Apache License, Version 2.0.
+
+It depends on, but does not include:
+  NumPy   (BSD-3-Clause)          https://numpy.org
+  Pillow  (MIT-CMU / HPND)        https://python-pillow.org
+and optionally, for model packages, PyTorch (BSD-3-Clause), safetensors
+(Apache-2.0) and PyYAML (MIT).

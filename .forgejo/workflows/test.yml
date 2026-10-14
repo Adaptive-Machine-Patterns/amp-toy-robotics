@@ -1,0 +1,10 @@
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: docker
+    container: python:3.12-slim
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v4
+      - run: pip install -e ".[test]" reuse
+      - run: sh scripts/check_publishable.sh
+      - run: pytest -q

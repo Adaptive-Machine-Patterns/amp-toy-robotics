@@ -1,0 +1,6 @@
+version = 1
+
+[[annotations]]
+path = ["NOTICE", "README.md", "RULES.md", "PROVENANCE.md", "docs/**", "pyproject.toml", ".gitignore", ".forgejo/**", "scripts/**", "tests/__init__.py", "REUSE.toml"]
+SPDX-FileCopyrightText = "2026 Adaptive Machine Patterns Ltd"
+SPDX-License-Identifier = "Apache-2.0"
