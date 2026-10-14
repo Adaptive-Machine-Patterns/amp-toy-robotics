@@ -585,13 +585,28 @@ def run_clauses(backend, scene: Scene, text: str,
     `progress`, if given, is called with the trajectory so far each time a
     chunk has been executed (so a GUI can animate while the backend works).
     """
+    loop = closed_loop(scene, text, start_q, start_grip, backend.name, progress)
+    try:
+        parsed, sim = next(loop)
+        while True:
+            parsed, sim = loop.send(backend.chunk(parsed, sim))
+    except StopIteration as done:
+        return done.value
+
+
+def closed_loop(scene: Scene, text: str, start_q=None, start_grip: float = 0.0,
+                name: str = "policy", progress=None):
+    """`run_clauses` as a generator, for callers that cannot block on the
+    backend (e.g. a web page whose model runs asynchronously).  It yields
+    `(parsed, sim)` whenever it needs a chunk, takes the chunk through
+    `send()`, and returns the Trajectory (`StopIteration.value`)."""
     clauses = split_clauses(text)
     sim = Sim(scene, scene.q if start_q is None else start_q, start_grip)
     instructions, last, grasp_failed, capped, results = [], None, None, False, []
 
     def so_far(holds):
         return Trajectory(q_seq=np.asarray(sim.q_seq), grip_seq=np.asarray(sim.grip_seq),
-                          instruction=" then ".join(instructions), backend=backend.name,
+                          instruction=" then ".join(instructions), backend=name,
                           holds=holds)
 
     for clause in clauses:
@@ -600,7 +615,7 @@ def run_clauses(backend, scene: Scene, text: str,
         first_frame = len(sim.q_seq) - 1
         steps, clause_capped = 0, False
         while steps < MAX_CLAUSE_STEPS:
-            chunk = backend.chunk(parsed, sim)
+            chunk = yield parsed, sim
             still = is_still(chunk, sim.q, sim.grip)
             for a in chunk[:1] if still else chunk:   # still: just settle
                 sim.step(a[:6], a[6])
@@ -627,7 +642,7 @@ def run_clauses(backend, scene: Scene, text: str,
     target = last.target if last is not None and last.target is not None else None
     return Trajectory(
         q_seq=np.asarray(sim.q_seq), grip_seq=np.asarray(sim.grip_seq),
-        instruction=" then ".join(instructions), backend=backend.name,
+        instruction=" then ".join(instructions), backend=name,
         target=target,
         tip_error=(float(np.linalg.norm(grasp_point(sim.q) - target))
                    if target is not None else None),

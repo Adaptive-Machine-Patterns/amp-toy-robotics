@@ -1,6 +1,6 @@
 # AMP Toy Robotics Benchmark
 
-**A light, seed-generated benchmark for vision-language-action (VLA) robot policies.**
+**A light, seed-generated benchmark for small vision-language-action (VLA) robot policies.**
 
 ![A scene and the three cameras a policy sees](docs/scene.png)
 
@@ -22,7 +22,7 @@ reads one clause at a time, and drives the arm itself.
   [LIBERO-Plus](https://arxiv.org/abs/2510.13626)).
 
 It comes from [Adaptive Machine Patterns](https://adaptive-machine-patterns.com),
-where it is the testbed for [AMP Tadpole](https://huggingface.co/amp-robotics/amp-tadpole)
+where it is the testbed for [AMP Tadpole](https://huggingface.co/Adaptive-Machine-Patterns/amp-tadpole)
 and the AMP Embodied AI Workbench.
 
 ## Install
@@ -45,7 +45,7 @@ reference teacher:
 |---|---|---|---|---|---|---|---|---|
 | 898 | 98% | 100% | 100% | 100% | 100% | 100% | **99.4%** | 1.00 |
 
-And [AMP Tadpole](https://huggingface.co/amp-robotics/amp-tadpole) v0.1.0, a
+And [AMP Tadpole](https://huggingface.co/Adaptive-Machine-Patterns/amp-tadpole) v0.1.0, a
 6.5M-parameter VLA trained on the benchmark's data:
 
 | clauses | pick | move | midpoint | open | close | home | all | path vs teacher |
@@ -127,6 +127,9 @@ packages from people you trust.
 Apache-2.0: see [LICENSE](LICENSE) and [NOTICE](NOTICE) (the object colours
 are ColorBrewer's Set2). [PROVENANCE.md](PROVENANCE.md) says where the code
 comes from. © 2026 Adaptive Machine Patterns Ltd.
+
+Provided "as is", without warranty of any kind and with no liability
+accepted (Apache-2.0, sections 7 and 8).
 
 ## Cite
 
