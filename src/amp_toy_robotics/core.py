@@ -369,6 +369,7 @@ def solve_reach(target, ref_q) -> np.ndarray:
 
 # ── Teacher part 2: how to move (a policy, not a pre-planned path) ───
 V_MAX = 0.12        # rad per step (joint-space norm) while cruising
+JOINT_SPEED = 0.12  # rad per step, each joint: the world's speed limit (Sim.step)
 V_MIN = 0.03        # rad per step at the end of the ease-out
 GAIN = 0.5          # short ease-out: step = GAIN * remaining distance
 GRIP_RATE = 0.125   # gripper aperture change per step
@@ -465,6 +466,7 @@ class Sim:
         self.grip = float(np.clip(grip, 0.0, 1.0))
         self.held = scene.held
         self.q_seq, self.grip_seq = [self.q.copy()], [self.grip]
+        self.speed_limited = 0        # steps the joint speed limit slowed down
         self.holds: List[HoldInfo] = []
         self._open_hold: Optional[HoldInfo] = None
         if self.held is not None:
@@ -479,6 +481,14 @@ class Sim:
 
     def step(self, q, grip: float):
         q = clamp_q(q)
+        # No joint moves more than JOINT_SPEED per step: a faster request is
+        # scaled down as a whole, so the arm keeps its direction, slower.
+        # The teacher never reaches it (V_MAX is a joint-space norm).
+        d = q - self.q
+        fastest = float(np.abs(d).max())
+        if fastest > JOINT_SPEED * (1 + 1e-6):
+            q = self.q + d * (JOINT_SPEED / fastest)
+            self.speed_limited += 1
         grip = float(np.clip(grip, 0.0, 1.0))
         tip = grasp_point(q)
         if self.held is None and self.grip < GRIP_CLOSED <= grip:
@@ -651,7 +661,7 @@ def closed_loop(scene: Scene, text: str, start_q=None, start_grip: float = 0.0,
               "target_name": last.target_name if last else None,
               "n_clauses": len(clauses), "clauses": instructions,
               "grasp_failed": grasp_failed, "step_cap_hit": capped,
-              "results": results})
+              "speed_limited": sim.speed_limited, "results": results})
 
 
 class TeacherBackend:

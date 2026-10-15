@@ -51,6 +51,11 @@ def path_length(q_seq) -> float:
     return float(np.linalg.norm(np.diff(tips, axis=0), axis=1).sum())
 
 
+def chord(q_seq) -> float:
+    """Straight-line distance from the first grasp point to the last."""
+    return float(np.linalg.norm(core.grasp_point(q_seq[-1]) - core.grasp_point(q_seq[0])))
+
+
 def clause_ok(parsed: core.Parsed, scene: core.Scene, traj: core.Trajectory,
               start_q, start_grip: float) -> bool:
     if traj.meta["step_cap_hit"]:
@@ -87,7 +92,10 @@ def evaluate(backend, n_scenes: int = 300, seed0: int = EVAL_SEED0,
                          "ok": bool(clause_ok(parsed, scene, traj, q, grip)),
                          "tip_error": traj.tip_error,
                          "path": path_length(traj.q_seq),
-                         "teacher_path": path_length(ref.q_seq)})
+                         "teacher_path": path_length(ref.q_seq),
+                         "chord": chord(traj.q_seq), "teacher_chord": chord(ref.q_seq),
+                         "steps": len(traj.q_seq), "teacher_steps": len(ref.q_seq),
+                         "speed_limited": (traj.meta.get("speed_limited", 0), len(traj.q_seq) - 1)})
             scene = replace(core.apply_hold(scene, traj), q=scene.q)
             q, grip = traj.q_seq[-1], float(traj.grip_seq[-1])
         if progress is not None:
@@ -105,6 +113,18 @@ def evaluate(backend, n_scenes: int = 300, seed0: int = EVAL_SEED0,
                                          if r["tip_error"] is not None])),
         "path_ratio_vs_teacher": float(np.sum([r["path"] for r in moving])
                                        / np.sum([r["teacher_path"] for r in moving])),
+        # time taken (steps) on clauses both succeed at, model / teacher
+        "steps_ratio_vs_teacher": float(
+            np.sum([r["steps"] for r in moving if r["ok"]])
+            / max(1, np.sum([r["teacher_steps"] for r in moving if r["ok"]]))),
+        # share of all steps the world's joint speed limit slowed down
+        "speed_limited": float(np.sum([r["speed_limited"][0] for r in rows])
+                               / max(1, np.sum([r["speed_limited"][1] for r in rows]))),
+        # path length over start-to-end distance (1 = one straight line)
+        "path_ratio_vs_line": float(np.sum([r["path"] for r in moving])
+                                    / max(1e-9, np.sum([r["chord"] for r in moving]))),
+        "teacher_ratio_vs_line": float(np.sum([r["teacher_path"] for r in moving])
+                                       / max(1e-9, np.sum([r["teacher_chord"] for r in moving]))),
         "rows": rows}
 
 
@@ -170,6 +190,10 @@ def report(res: dict) -> str:
              f"| {res['clauses']} | " + " | ".join(
                  f"{by[k]:.0%}" if k in by else "–" for k in kinds)
              + f" | **{res['success']:.1%}** | {res['path_ratio_vs_teacher']:.2f} |"]
+    if "speed_limited" in res:
+        lines += ["", f"Steps vs teacher (clauses both succeed at): {res['steps_ratio_vs_teacher']:.2f}.  "
+                      f"Path vs a straight line: {res['path_ratio_vs_line']:.2f} (teacher {res['teacher_ratio_vs_line']:.2f}).  "
+                      f"Steps slowed by the joint speed limit: {res['speed_limited']:.1%}."]
     if "named_object" in res:
         lines += ["", "| named object | other objects | image swap | instruction swap | blank instruction |",
                   "|---|---|---|---|---|",

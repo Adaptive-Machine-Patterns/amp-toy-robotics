@@ -52,6 +52,12 @@ motion, including the gripper and when to stop.
 
 ## The world
 
+- **Joint speed limit (from 0.2.0):** no joint moves more than 0.12 rad in one
+  step. A step that asks for more is scaled down as a whole, so the arm keeps
+  its direction but takes longer. The teacher never reaches the limit. It keeps
+  policies that learn to cut corners (for example to shorten their path) to
+  speeds a real arm could manage. `evaluate` reports the share of steps it
+  slowed.
 - An object is picked up only if the gripper closes (opening passes 0.9)
   with its grasp point within 8 units of the object.
 - A held object moves with the gripper. It stays where the gripper is when

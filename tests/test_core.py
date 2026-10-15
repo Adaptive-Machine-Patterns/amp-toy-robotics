@@ -380,3 +380,24 @@ def test_trajectory_invariants():
             assert a - 1e-6 <= v <= b + 1e-6
     assert np.all(np.isfinite(traj.grip_seq))
     assert traj.q_seq.shape[1] == core.N_JOINTS
+
+
+def test_joint_speed_limit():
+    """A step asking any joint for more than JOINT_SPEED is scaled down as a
+    whole: same direction, the fastest joint at the limit."""
+    scene = core.new_scene(9_000_501)
+    sim = core.Sim(scene, scene.q, 0.0)
+    want = scene.q + np.array([0.5, 0.1, 0.0, 0.0, 0.2, 0.0])         # inside the joint limits
+    sim.step(want, 0.0)
+    d = sim.q - scene.q
+    assert np.isclose(np.abs(d).max(), core.JOINT_SPEED)
+    assert np.allclose(d / np.linalg.norm(d), (want - scene.q) / np.linalg.norm(want - scene.q))
+    assert sim.speed_limited == 1
+
+
+def test_teacher_never_reaches_the_speed_limit():
+    for seed in range(9_000_510, 9_000_516):
+        scene = core.new_scene(seed)
+        traj = core.TeacherBackend().act(scene, f"pick up the {scene.object_names[0]} then return home")
+        assert traj.meta["speed_limited"] == 0
+        assert np.abs(np.diff(traj.q_seq, axis=0)).max() <= core.JOINT_SPEED + 1e-9
