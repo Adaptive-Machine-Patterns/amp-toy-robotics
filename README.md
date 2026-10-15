@@ -52,6 +52,11 @@ And [AMP Tadpole](https://huggingface.co/Adaptive-Machine-Patterns/amp-tadpole) 
 |---|---|---|---|---|---|---|---|---|
 | 898 | 93% | 94% | 75% | 100% | 100% | 100% | **93.7%** | 1.03 |
 
+Both are unchanged by 0.2.0's joint speed limit, which never slows the teacher
+and slowed 0.13% of AMP Tadpole's steps. AMP Tadpole takes 1.13 times the
+teacher's steps on the clauses both complete, and its path is 1.96 times a
+straight line (the teacher's: 1.90).
+
 ## Write a policy
 
 Any object with a `predict` method will do, in any framework:
@@ -122,6 +127,13 @@ Workbench both load:
 `model.py` is ordinary Python and runs with your permissions: only load
 packages from people you trust.
 
+## Versions
+
+| version | what changed |
+|---|---|
+| 0.2.0 | **Joint speed limit:** no joint moves more than 0.12 rad per step; a faster request is scaled down as a whole (docs/TASK.md). The teacher never reaches it, so its examples are unchanged. `evaluate` also reports steps and path against the teacher and a straight line, and the share of steps the limit slowed. |
+| 0.1.0 | First release. |
+
 ## Licence and credits
 
 Apache-2.0: see [LICENSE](LICENSE) and [NOTICE](NOTICE) (the object colours
@@ -138,7 +150,7 @@ accepted (Apache-2.0, sections 7 and 8).
   author    = {Whyte, Andy and {Adaptive Machine Patterns Ltd}},
   title     = {{AMP Toy Robotics Benchmark}},
   year      = {2026},
-  version   = {0.1.0},
-  url       = {https://adaptive-machine-patterns.com}
+  version   = {0.2.0},
+  url       = {https://github.com/Adaptive-Machine-Patterns/amp-toy-robotics}
 }
 ```

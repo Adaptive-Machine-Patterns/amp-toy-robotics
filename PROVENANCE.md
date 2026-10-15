@@ -24,3 +24,5 @@ is safe to use.
   AMP's original project (`robot-control-gui`, commit 3f4197c). The
   grounding tests come from that project's working tree on 2026-10-14,
   with two tests added (instruction swap, blank instruction).
+- **The joint speed limit** (0.2.0) is that project's commit b3bec5b, line
+  for line; the parity tests pass against it.
