@@ -28,6 +28,7 @@ amp-bench = "amp_toy_robotics.cli:main"
 
 [project.urls]
 Homepage = "https://adaptive-machine-patterns.com"
+Repository = "https://github.com/Adaptive-Machine-Patterns/amp-toy-robotics"
 
 [tool.setuptools.packages.find]
 where = ["src"]
