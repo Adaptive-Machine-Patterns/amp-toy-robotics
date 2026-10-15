@@ -45,12 +45,12 @@ reference teacher:
 |---|---|---|---|---|---|---|---|---|
 | 898 | 98% | 100% | 100% | 100% | 100% | 100% | **99.4%** | 1.00 |
 
-And [AMP Tadpole](https://huggingface.co/Adaptive-Machine-Patterns/amp-tadpole) v0.1.0, a
+And [AMP Tadpole](https://huggingface.co/Adaptive-Machine-Patterns/amp-tadpole) v0.2.0, a
 6.5M-parameter VLA trained on the benchmark's data:
 
 | clauses | pick | move | midpoint | open | close | home | all | path vs teacher |
 |---|---|---|---|---|---|---|---|---|
-| 898 | 83% | 90% | 63% | 100% | 100% | 99% | **88.2%** | 1.02 |
+| 898 | 93% | 94% | 75% | 100% | 100% | 100% | **93.7%** | 1.03 |
 
 ## Write a policy
 
@@ -107,7 +107,7 @@ the motion the policy asks for:
 | instruction swap | another object is named: only the words change | close to 1 (0 = ignores the words) |
 | blank instruction | the clause is empty | well above 0 (0 = the words make no difference) |
 
-AMP Tadpole v0.1.0 scores 0.96 / 0.31 / 1.00 / 1.00 / 0.92 on these.
+AMP Tadpole v0.2.0 scores 0.98 / 0.31 / 1.00 / 1.00 / 0.95 on these.
 
 ## Model packages
 
