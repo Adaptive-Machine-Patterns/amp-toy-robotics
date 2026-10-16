@@ -27,13 +27,20 @@ and the AMP Embodied AI Workbench.
 
 ## Install
 
-    pip install amp-toy-robotics                  # numpy + Pillow only
-    pip install "amp-toy-robotics[packages]"      # + torch, to load model packages
+Clone the repository and install:
 
-## Use
+    git clone https://github.com/Adaptive-Machine-Patterns/amp-toy-robotics
+    cd amp-toy-robotics
+    pip install .                    # numpy + Pillow only
+    pip install ".[packages]"        # + torch, to load model packages
 
-    amp-bench show --seed 9000007 --out scene.png      # look at a scene
-    amp-bench eval --policy teacher                    # the reference
+Use `pip install -e .` instead if you want to edit the code and have
+changes take effect without reinstalling. Requires Python 3.10+.
+
+## Usage
+
+    amp-bench show --seed 9000007 --out scene.png      # Make a PNG image of the robot
+    amp-bench eval --policy teacher                    # Runs 300 scenarios for teaching
     amp-bench eval --policy my_module:make_policy      # your policy
     amp-bench eval --policy path/to/model-package      # a model package
 
