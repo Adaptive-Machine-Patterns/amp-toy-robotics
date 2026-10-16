@@ -50,19 +50,20 @@ reference teacher:
 
 | clauses | pick | move | midpoint | open | close | home | all | path vs teacher |
 |---|---|---|---|---|---|---|---|---|
-| 898 | 98% | 100% | 100% | 100% | 100% | 100% | **99.4%** | 1.00 |
+| 898 | 100% | 100% | 100% | 100% | 100% | 100% | **100.0%** | 1.00 |
 
 And [AMP Tadpole](https://huggingface.co/Adaptive-Machine-Patterns/amp-tadpole) v0.2.0, a
 6.5M-parameter VLA trained on the benchmark's data:
 
 | clauses | pick | move | midpoint | open | close | home | all | path vs teacher |
 |---|---|---|---|---|---|---|---|---|
-| 898 | 93% | 94% | 75% | 100% | 100% | 100% | **93.7%** | 1.03 |
+| 898 | 94% | 95% | 76% | 100% | 100% | 100% | **94.2%** | 1.03 |
 
-Both are unchanged by 0.2.0's joint speed limit, which never slows the teacher
-and slowed 0.13% of AMP Tadpole's steps. AMP Tadpole takes 1.13 times the
-teacher's steps on the clauses both complete, and its path is 1.96 times a
-straight line (the teacher's: 1.90).
+Both measured under 0.3.0 (under 0.2.0's 120-step limit and old teacher:
+99.4% and 93.7%). The joint speed limit never slows the teacher and slowed
+0.1% of AMP Tadpole's steps. AMP Tadpole takes 1.14 times the teacher's
+steps on the clauses both complete, and its path is 1.97 times a straight
+line (the teacher's: 1.92).
 
 ## Write a policy
 
@@ -138,6 +139,7 @@ packages from people you trust.
 
 | version | what changed |
 |---|---|
+| 0.3.0 | **Clause step limit 200** (was 120): a safety stop, not a race; scores from earlier versions are lower bounds. **The teacher sets a held object down clear** before picking up another (it looped on 0.5% of clauses): 99.4% → 100%. The world's rules are otherwise unchanged; `data.py` gives the same examples except in that situation. |
 | 0.2.0 | **Joint speed limit:** no joint moves more than 0.12 rad per step; a faster request is scaled down as a whole (docs/TASK.md). The teacher never reaches it, so its examples are unchanged. `evaluate` also reports steps and path against the teacher and a straight line, and the share of steps the limit slowed. |
 | 0.1.0 | First release. |
 
@@ -157,7 +159,7 @@ accepted (Apache-2.0, sections 7 and 8).
   author    = {Whyte, Andy and {Adaptive Machine Patterns Ltd}},
   title     = {{AMP Toy Robotics Benchmark}},
   year      = {2026},
-  version   = {0.2.0},
+  version   = {0.3.0},
   url       = {https://github.com/Adaptive-Machine-Patterns/amp-toy-robotics}
 }
 ```

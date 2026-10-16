@@ -95,6 +95,20 @@ def test_held_object_carries_over_to_the_next_command():
     assert np.allclose(sc3.objects[0]["pos"], core.grasp_point(tr2.q_seq[-1]))
 
 
+def test_picking_up_while_holding_another_object_sets_it_down_clear():
+    """Carried onto the target, the held object is put down clear of it
+    first; dropped on the target it would be the nearest when the gripper
+    closes, and be grabbed again (before 0.3.0 the teacher looped on this)."""
+    sc = core.new_scene(9010114)
+    tr = BE.act(sc, "pick up the gold triangle then move to the teal square "
+                    "then pick up the teal square")
+    after = core.scene_at(sc, tr, len(tr.q_seq) - 1)
+    assert after.held == "teal square"
+    gold = next(o for o in after.objects if o["name"] == "gold triangle")
+    teal = next(o for o in sc.objects if o["name"] == "teal square")
+    assert np.linalg.norm(np.subtract(gold["pos"], teal["pos"])) >= core.SET_DOWN_CLEAR - 1e-6
+
+
 def test_closing_away_from_any_object_grabs_nothing():
     """No teleporting: a gripper that closes on empty space stays empty."""
     sc = _scene()

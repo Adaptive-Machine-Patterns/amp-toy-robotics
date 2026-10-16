@@ -47,7 +47,7 @@ wording (`core.parse_instruction`).
 `core.run_clauses` shows the policy the current view and state, executes the
 8 steps it returns, and repeats. The clause ends when the policy asks for no
 further motion (every joint within 0.03 rad and the gripper within 0.06 of
-where it is), or after 120 steps. The policy decides everything about the
+where it is), or after 200 steps (120 before version 0.3.0). The policy decides everything about the
 motion, including the gripper and when to stop.
 
 ## The world
@@ -72,14 +72,21 @@ motion, including the gripper and when to stop.
 | open / close | the gripper ends in that state, and no joint moved more than 0.05 rad |
 | return home | every visible joint ends within 0.05 rad of the home pose |
 
-A clause that hits the 120-step limit fails.
+A clause that hits the 200-step limit fails. The limit is a safety stop for a
+policy that never says it is done, not a race: it is about 3.5 times the
+teacher's longest clauses. Raising it from 120 (in 0.3.0) can only turn
+failures into successes, since policies are deterministic, so scores
+measured under 0.1.0 or 0.2.0 are lower bounds.
 
 ## The teacher
 
 `core.teacher_step` is a hand-written controller that solves the task using
 the true object positions. It is not a learned model and not a valid
 entry: it defines what "doing it right" looks like and labels the training
-data (`data.py`). It scores 99.4% on the standard 300 held-out scenes. Its
+data (`data.py`). It scores 100% on the standard 300 held-out scenes. Asked to
+pick up one object while holding another, it first sets the held one down
+clear of the target (from 0.3.0; before, it dropped it on the target, grabbed
+it again, and looped until the step limit in 0.5% of clauses). Its
 action is a fixed function of the current state, so it can label any
 state, including ones a learner wanders into.
 

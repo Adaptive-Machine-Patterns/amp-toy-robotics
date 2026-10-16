@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amp-toy-robotics"
-version = "0.2.0"
+version = "0.3.0"
 description = "A light, seed-generated benchmark for vision-language-action robot policies"
 readme = "README.md"
 license = "Apache-2.0"

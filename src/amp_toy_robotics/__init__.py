@@ -14,4 +14,4 @@ English.  numpy and Pillow only.
     evaluate   closed-loop success and grounding tests
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

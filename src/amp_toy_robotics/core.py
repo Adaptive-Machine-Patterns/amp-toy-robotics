@@ -42,7 +42,7 @@ JOINT_LIMITS: List[Tuple[float, float]] = [
 
 CHUNK = 8                     # action-chunk length: steps predicted per observation
 STATE_DIM = 7                 # 6 joint angles (rad) + gripper aperture (0 open .. 1 closed)
-MAX_CLAUSE_STEPS = 120        # safety cap on one clause's closed loop
+MAX_CLAUSE_STEPS = 200        # safety cap on one clause's closed loop (120 until 2026-10-16)
 
 # Geometry / vocabulary (single source of truth: geometry.py)
 POST_HEIGHT = geo.POST_HEIGHT
@@ -374,6 +374,23 @@ V_MIN = 0.03        # rad per step at the end of the ease-out
 GAIN = 0.5          # short ease-out: step = GAIN * remaining distance
 GRIP_RATE = 0.125   # gripper aperture change per step
 CLOSE_RADIUS = 0.05  # 'pick up': start closing once this near the goal (rad)
+SET_DOWN_CLEAR = 2 * GRASP_TOLERANCE   # 'pick up' while holding another object:
+SET_DOWN_AT = 3 * GRASP_TOLERANCE      # let go only this clear of the target,
+                                       # moving out to this distance first
+
+
+def _set_down_point(target: np.ndarray, tip: np.ndarray) -> np.ndarray:
+    """Where to put down a held object before picking up the one at
+    `target`: SET_DOWN_AT from it, level with it, on the side the grasp
+    point is on (toward the base if it is right above it)."""
+    d = (tip - target)[:2]
+    if np.linalg.norm(d) < 1e-6:
+        d = -target[:2]
+    if np.linalg.norm(d) < 1e-6:
+        d = np.array([1.0, 0.0])
+    out = target.copy()
+    out[:2] += SET_DOWN_AT * d / np.linalg.norm(d)
+    return out
 
 
 def teacher_goal(parsed: Parsed, q, grip: float,
@@ -381,6 +398,15 @@ def teacher_goal(parsed: Parsed, q, grip: float,
     """Goal (joint pose, gripper aperture) of a clause from state (q, grip).
     `held` names the object currently in the gripper, if any."""
     q = np.asarray(q, dtype=np.float64).reshape(6)
+    if parsed.kind == "pick" and held is not None and held != parsed.target_name:
+        # holding something else: let go of it where the arm is, unless that
+        # is near the target (it would then lie where the gripper closes and
+        # be grabbed again); in that case carry it clear first
+        target = np.asarray(parsed.target, dtype=np.float64)
+        tip = grasp_point(q)
+        if np.linalg.norm(tip - target) >= SET_DOWN_CLEAR:
+            return q.copy(), 0.0
+        return solve_reach(_set_down_point(target, tip), q), float(grip)
     if parsed.target is not None and parsed.kind in ("pick", "move", "midpoint"):
         q_goal = solve_reach(parsed.target, q)
     elif parsed.kind == "home":
@@ -389,8 +415,8 @@ def teacher_goal(parsed: Parsed, q, grip: float,
     else:
         q_goal = q.copy()
     if parsed.kind == "pick":
-        # approach open and close on arrival.  Holding something else, or
-        # already closed on nothing: open first, then close on the object.
+        # approach open and close on arrival.  Already closed on nothing:
+        # open first, then close on the object.
         near = np.linalg.norm(q_goal - q) <= CLOSE_RADIUS
         if held == parsed.target_name:
             g_goal = 1.0
