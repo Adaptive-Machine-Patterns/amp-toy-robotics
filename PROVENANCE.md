@@ -5,11 +5,11 @@ is safe to use.
 
 - **Authorship.** Written for Adaptive Machine Patterns Ltd by Andy Whyte,
   with AI coding assistants: OpenAI ChatGPT (an early version of the arm
-  geometry), Qwen 3.6 and 3.8 (early work, including an early version of
-  the GUI), and Anthropic Claude (most of the rest). The output of these
-  assistants belongs to the user under their providers' terms and model
-  licences. All of it was reviewed and is published under Apache-2.0 by
-  the copyright holder.
+  geometry), Qwen 3.6 and 3.8 (first version of
+  the GUI), and Anthropic Claude (polish, GUI development and production).
+  The output of these assistants belongs to the user under their
+  providers' terms and model licences. All of it was reviewed and is
+  published under Apache-2.0 by the copyright holder.
 - **No third-party source code is included.** Before publication, the
   code was searched for licence headers, attribution comments and
   verbatim copies of the libraries it was developed alongside (numpy,
